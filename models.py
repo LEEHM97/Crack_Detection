@@ -1,5 +1,6 @@
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim.lr_scheduler as lr_scheduler
@@ -8,17 +9,17 @@ from torchmetrics.functional import accuracy, f1_score, precision, recall
 from torchmetrics.functional.classification import binary_jaccard_index
 
 
-class SegmentationModel(pl.LightningDataModule):
+class SegmentationModel(pl.LightningModule):
     def __init__(self, args=None):
         super().__init__()
         self.model = smp.__dict__[args.model](
             encoder_name=args.encoder,
             encoder_weights="imagenet",
             in_channels=3,
-            classes=2,
+            classes=1,
         )
         self.args = args
-        self.critetion = nn.BCEWithLogitsLoss()
+        self.criterion = nn.BCEWithLogitsLoss()
 
     def foward(self, x):
         x = self.model(x)
@@ -58,12 +59,12 @@ class SegmentationModel(pl.LightningDataModule):
         image, mask = train_batch
 
         outputs = self.model(image)
-        loss = self.criterion(outputs, mask.unsqueeze(0).permute(1, 0, 2, 3))
         mask = mask.long()
-
+        
         jaccard_index_value = binary_jaccard_index(
             torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
-        )
+        )        
+        loss = self.criterion(outputs, mask.unsqueeze(1).float())
         acc_value = accuracy(torch.sigmoid(outputs), mask)
         f1_value = f1_score(torch.sigmoid(outputs), mask)
         precision_value = precision(torch.sigmoid(outputs), mask)
@@ -124,12 +125,12 @@ class SegmentationModel(pl.LightningDataModule):
         image, mask = val_batch
 
         outputs = self.model(image)
-        loss = self.criterion(outputs, mask.unsqueeze(0).permute(1, 0, 2, 3))
         mask = mask.long()
 
         jaccard_index_value = binary_jaccard_index(
             torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
         )
+        loss = self.criterion(outputs, mask.unsqueeze(1).float())
         acc_value = accuracy(torch.sigmoid(outputs), mask)
         f1_value = f1_score(torch.sigmoid(outputs), mask)
         precision_value = precision(torch.sigmoid(outputs), mask)
@@ -185,12 +186,12 @@ class SegmentationModel(pl.LightningDataModule):
         image, mask = test_batch
 
         outputs = self.model(image)
-        loss = self.criterion(outputs, mask.unsqueeze(0).permute(1, 0, 2, 3))
         mask = mask.long()
 
         jaccard_index_value = binary_jaccard_index(
             torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
-        )
+        )        
+        loss = self.criterion(outputs, mask.unsqueeze(1).float())
         acc_value = accuracy(torch.sigmoid(outputs), mask)
         f1_value = f1_score(torch.sigmoid(outputs), mask)
         precision_value = precision(torch.sigmoid(outputs), mask)
