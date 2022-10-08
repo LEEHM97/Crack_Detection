@@ -13,11 +13,11 @@ class SegmentationDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, item):
         image = cv2.imread(self.images[item])
-        mask = cv2.imread(self.masks[item], 0)
+        mask = cv2.imread(self.masks[item], 0) // 255
 
         if self.transform:
             transformed = self.transform(image=image, mask=mask)
             image = transformed['image'].float()
-            mask = transformed['mask'].float()
+            mask = transformed['mask']
 
         return image, mask
