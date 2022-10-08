@@ -37,7 +37,7 @@ parser.add_argument("--kfold", type=int, default=3)
 parser.add_argument("--batch_size", type=int, default=12)
 parser.add_argument("--learning_rate", type=float, default=0.001)
 parser.add_argument("--optimizer", type=str, default="adam")
-parser.add_argument("--scheduler", type=str, default="recudelr")
+parser.add_argument("--scheduler", type=str, default="reducelr")
 parser.add_argument("--crop_image_size", type=int, default=320)
 
 args = parser.parse_args()
@@ -54,11 +54,11 @@ if __name__ == "__main__":
 
     kf = KFold(n_splits=args.kfold)
     for idx, (train_index, val_index) in enumerate(kf.split(X=train_images)):
-        wandb_logger = WandbLogger(
-            project=args.project,
-            name=f"{args.name}_fold{idx + 1:02d}",
-            entity="crack_detection_22",
-        )
+        # wandb_logger = WandbLogger(
+        #     project=args.project,
+        #     name=f"{args.name}_fold{idx + 1:02d}",
+        #     entity="crack_detection_22",
+        # )
         checkpoint_callback = ModelCheckpoint(
             monitor="val/jaccard_index_value",
             dirpath="checkpoints",
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         max_epochs=args.epochs,
         log_every_n_steps=1,
         callbacks=[checkpoint_callback, early_stop_callback],
-        logger=wandb_logger,
+        # logger=wandb_logger,
     )
 
     trainer.fit(
