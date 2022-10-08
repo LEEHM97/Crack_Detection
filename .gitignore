@@ -3,3 +3,4 @@ traincrop
 testsets
 Datasets
 wandb
+__pycache__
