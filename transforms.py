@@ -4,7 +4,11 @@ from albumentations.pytorch.transforms import ToTensorV2
 
 
 def make_transform(args):
-    test_transform = A.compose([ToTensorV2()])
+    test_transform = A.Compose(
+        [
+            ToTensorV2(),
+        ]
+    )
 
     train_transform = A.Compose(
         [
