@@ -3,6 +3,7 @@ import argparse
 import torch
 import wandb
 import glob
+import natsort
 
 import torch.nn as nn
 import numpy as np
@@ -46,19 +47,19 @@ test_data_dir = "./Datasets/Test"
 
 if __name__ == "__main__":
     pl.seed_everything(args.seed)
-    train_images = np.array(sorted(glob.glob(os.path.join(train_data_dir, "images", "*"))))
-    train_masks = np.array(sorted(glob.glob(os.path.join(train_data_dir, "masks", "*"))))
+    train_images = np.array(natsort.natsorted(glob.glob(os.path.join(train_data_dir, "images", "*"))))
+    train_masks = np.array(natsort.natsorted(glob.glob(os.path.join(train_data_dir, "masks", "*"))))
 
-    test_images = np.array(sorted(glob.glob(os.path.join(test_data_dir, "images", "*"))))
-    test_masks = np.array(sorted(glob.glob(os.path.join(test_data_dir, "masks", "*"))))
+    test_images = np.array(natsort.natsorted(glob.glob(os.path.join(test_data_dir, "images", "*"))))
+    test_masks = np.array(natsort.natsorted(glob.glob(os.path.join(test_data_dir, "masks", "*"))))
 
     kf = KFold(n_splits=args.kfold)
     for idx, (train_index, val_index) in enumerate(kf.split(X=train_images)):
-        # wandb_logger = WandbLogger(
-        #     project=args.project,
-        #     name=f"{args.name}_fold{idx + 1:02d}",
-        #     entity="crack_detection_22",
-        # )
+        wandb_logger = WandbLogger(
+            project=args.project,
+            name=f"{args.name}_fold{idx + 1:02d}",
+            entity="crack_detection_22",
+        )
         checkpoint_callback = ModelCheckpoint(
             monitor="val/jaccard_index_value",
             dirpath="checkpoints",
@@ -67,49 +68,49 @@ if __name__ == "__main__":
             save_top_k=3,
             mode="max",
         )
-    early_stop_callback = EarlyStopping(
-        monitor="val/loss", min_delta=0.00, patience=50, verbose=True, mode="min"
-    )
+        early_stop_callback = EarlyStopping(
+            monitor="val/loss", min_delta=0.00, patience=50, verbose=True, mode="min"
+        )
 
-    train_transform, test_transform = make_transform(args)
-    model = SegmentationModel(args)
+        train_transform, test_transform = make_transform(args)
+        model = SegmentationModel(args)
 
-    train_ds = SegmentationDataset(
-        train_images[train_index], train_masks[train_index], train_transform
-    )
-    train_dataloader = torch.utils.data.DataLoader(
-        train_ds,
-        batch_size=args.batch_size,
-        num_workers=args.num_workers,
-        shuffle=True,
-        drop_last=True,
-    )
+        train_ds = SegmentationDataset(
+            train_images[train_index], train_masks[train_index], train_transform
+        )
+        train_dataloader = torch.utils.data.DataLoader(
+            train_ds,
+            batch_size=args.batch_size,
+            num_workers=args.num_workers,
+            shuffle=True,
+            drop_last=True,
+        )
 
-    val_ds = SegmentationDataset(
-        train_images[val_index], train_masks[val_index], train_transform
-    )
-    val_dataloader = torch.utils.data.DataLoader(
-        val_ds, batch_size=args.batch_size, num_workers=args.num_workers
-    )
+        val_ds = SegmentationDataset(
+            train_images[val_index], train_masks[val_index], train_transform
+        )
+        val_dataloader = torch.utils.data.DataLoader(
+            val_ds, batch_size=args.batch_size, num_workers=args.num_workers
+        )
 
-    test_ds = SegmentationDataset(test_images, test_masks, test_transform)
-    test_dataloader = torch.utils.data.DataLoader(
-        test_ds, batch_size=1, num_workers=args.num_workers
-    )
+        test_ds = SegmentationDataset(test_images, test_masks, test_transform)
+        test_dataloader = torch.utils.data.DataLoader(
+            test_ds, batch_size=1, num_workers=args.num_workers
+        )
 
-    trainer = pl.Trainer(
-        accelerator="gpu",
-        devices=1,
-        precision=args.precision,
-        max_epochs=args.epochs,
-        log_every_n_steps=1,
-        callbacks=[checkpoint_callback, early_stop_callback],
-        # logger=wandb_logger,
-    )
+        trainer = pl.Trainer(
+            accelerator="gpu",
+            devices=1,
+            precision=args.precision,
+            max_epochs=args.epochs,
+            log_every_n_steps=1,
+            callbacks=[checkpoint_callback, early_stop_callback],
+            logger=wandb_logger,
+        )
 
-    trainer.fit(
-        model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader
-    )
-    trainer.test(dataloaders=test_dataloader)
+        trainer.fit(
+            model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader
+        )
+        trainer.test(dataloaders=test_dataloader)
 
-    wandb.finish()
+        wandb.finish()
