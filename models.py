@@ -234,7 +234,7 @@ class SegmentationModel(pl.LightningModule):
             "test/recall",
             recall_value,
             on_epoch=True,
-            on_step=True,
+            on_step=False,
             prog_bar=True,
             sync_dist=True,
         )
