@@ -209,8 +209,8 @@ class SegmentationModel(pl.LightningModule):
         self.log(
             "test/jaccard_index_value",
             jaccard_index_value,
-            on_epoch=False,
-            on_step=True,
+            on_epoch=True,
+            on_step=False,
             prog_bar=True,
             sync_dist=True,
         )
