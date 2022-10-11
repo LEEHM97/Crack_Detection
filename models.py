@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim.lr_scheduler as lr_scheduler
 from adamp import AdamP
 from torchmetrics.functional import accuracy, f1_score, precision, recall
-from torchmetrics.functional.classification import binary_jaccard_index
+# from torchmetrics.functional.classification import binary_jaccard_index
 
 
 class SegmentationModel(pl.LightningModule):
@@ -45,7 +45,7 @@ class SegmentationModel(pl.LightningModule):
             return {
                 "optimizer": optimizer,
                 "lr_scheduler": scheduler,
-                "monitor": "val/jaccard_index_value",
+                "monitor": "val/f1",
             }
 
         elif self.args.scheduler == "cosineanneal":
@@ -61,9 +61,9 @@ class SegmentationModel(pl.LightningModule):
         outputs = self.model(image)
         mask = mask.long()
         
-        jaccard_index_value = binary_jaccard_index(
-            torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
-        )        
+        # jaccard_index_value = binary_jaccard_index(
+        #     torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
+        # )        
         loss = self.criterion(outputs, mask.unsqueeze(1).float())
         acc_value = accuracy(torch.sigmoid(outputs), mask)
         f1_value = f1_score(torch.sigmoid(outputs), mask)
@@ -79,14 +79,14 @@ class SegmentationModel(pl.LightningModule):
             sync_dist=True,
         )
         self.log("train/acc", acc_value, on_epoch=True, on_step=True, prog_bar=True)
-        self.log(
-            "train/jaccard_index_value",
-            jaccard_index_value,
-            on_epoch=True,
-            on_step=True,
-            prog_bar=True,
-            sync_dist=True,
-        )
+        # self.log(
+        #     "train/jaccard_index_value",
+        #     jaccard_index_value,
+        #     on_epoch=True,
+        #     on_step=True,
+        #     prog_bar=True,
+        #     sync_dist=True,
+        # )
         self.log(
             "train/f1",
             f1_value,
@@ -115,7 +115,7 @@ class SegmentationModel(pl.LightningModule):
         return {
             "loss": loss,
             "acc": acc_value,
-            "jaccard_index": jaccard_index_value,
+            # "jaccard_index": jaccard_index_value,
             "f1": f1_value,
             "precision": precision_value,
             "recall": recall_value,
@@ -127,9 +127,9 @@ class SegmentationModel(pl.LightningModule):
         outputs = self.model(image)
         mask = mask.long()
 
-        jaccard_index_value = binary_jaccard_index(
-            torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
-        )
+        # jaccard_index_value = binary_jaccard_index(
+        #     torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
+        # )
         loss = self.criterion(outputs, mask.unsqueeze(1).float())
         acc_value = accuracy(torch.sigmoid(outputs), mask)
         f1_value = f1_score(torch.sigmoid(outputs), mask)
@@ -140,14 +140,14 @@ class SegmentationModel(pl.LightningModule):
             "val/loss", loss, on_epoch=True, on_step=True, prog_bar=True, sync_dist=True
         )
         self.log("val/acc", acc_value, on_epoch=True, on_step=True, prog_bar=True)
-        self.log(
-            "val/jaccard_index_value",
-            jaccard_index_value,
-            on_epoch=True,
-            on_step=True,
-            prog_bar=True,
-            sync_dist=True,
-        )
+        # self.log(
+        #     "val/jaccard_index_value",
+        #     jaccard_index_value,
+        #     on_epoch=True,
+        #     on_step=True,
+        #     prog_bar=True,
+        #     sync_dist=True,
+        # )
         self.log(
             "val/f1",
             f1_value,
@@ -176,7 +176,7 @@ class SegmentationModel(pl.LightningModule):
         return {
             "loss": loss,
             "acc": acc_value,
-            "jaccard_index": jaccard_index_value,
+            # "jaccard_index": jaccard_index_value,
             "f1": f1_value,
             "precision": precision_value,
             "recall": recall_value,
@@ -188,9 +188,9 @@ class SegmentationModel(pl.LightningModule):
         outputs = self.model(image)
         mask = mask.long()
 
-        jaccard_index_value = binary_jaccard_index(
-            torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
-        )        
+        # jaccard_index_value = binary_jaccard_index(
+        #     torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
+        # )        
         loss = self.criterion(outputs, mask.unsqueeze(1).float())
         acc_value = accuracy(torch.sigmoid(outputs), mask)
         f1_value = f1_score(torch.sigmoid(outputs), mask)
@@ -206,14 +206,14 @@ class SegmentationModel(pl.LightningModule):
             sync_dist=True,
         )
         self.log("test/acc", acc_value, on_epoch=True, on_step=False, prog_bar=True)
-        self.log(
-            "test/jaccard_index_value",
-            jaccard_index_value,
-            on_epoch=True,
-            on_step=False,
-            prog_bar=True,
-            sync_dist=True,
-        )
+        # self.log(
+        #     "test/jaccard_index_value",
+        #     jaccard_index_value,
+        #     on_epoch=True,
+        #     on_step=False,
+        #     prog_bar=True,
+        #     sync_dist=True,
+        # )
         self.log(
             "test/f1",
             f1_value,
@@ -242,7 +242,7 @@ class SegmentationModel(pl.LightningModule):
         return {
             "loss": loss,
             "acc": acc_value,
-            "jaccard_index": jaccard_index_value,
+            # "jaccard_index": jaccard_index_value,
             "f1": f1_value,
             "precision": precision_value,
             "recall": recall_value,
