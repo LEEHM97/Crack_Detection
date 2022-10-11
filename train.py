@@ -34,7 +34,7 @@ parser.add_argument("--precision", type=int, default=16)
 # training 설정
 
 parser.add_argument("--epochs", type=int, default=30)
-parser.add_argument("--kfold", type=int, default=3)
+parser.add_argument("--kfold", type=int, default=5)
 parser.add_argument("--batch_size", type=int, default=12)
 parser.add_argument("--learning_rate", type=float, default=0.001)
 parser.add_argument("--optimizer", type=str, default="adam")
@@ -111,6 +111,6 @@ if __name__ == "__main__":
         trainer.fit(
             model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader
         )
-        trainer.test(dataloaders=test_dataloader)
+        trainer.test(dataloaders=test_dataloader, ckpt_path='best')
 
         wandb.finish()
