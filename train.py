@@ -61,10 +61,10 @@ if __name__ == "__main__":
             entity="crack_detection_22",
         )
         checkpoint_callback = ModelCheckpoint(
-            monitor="val/jaccard_index_value",
+            monitor="val/f1",
             dirpath="checkpoints",
             filename=f"{args.name}_fold{idx + 1:02d}_"
-            + "{val/jaccard_index_value:.4f}",
+            + "{val/f1:.4f}",
             save_top_k=3,
             mode="max",
         )
