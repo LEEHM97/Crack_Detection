@@ -6,22 +6,25 @@ import torch.nn as nn
 import torch.optim.lr_scheduler as lr_scheduler
 from adamp import AdamP
 from torchmetrics.functional import accuracy, f1_score, precision, recall
+from pytorchcv.model_provider import get_model as ptcv_get_model
+from torch.autograd import Variable
 # from torchmetrics.functional.classification import binary_jaccard_index
 
 
 class SegmentationModel(pl.LightningModule):
     def __init__(self, args=None):
         super().__init__()
-        self.model = smp.__dict__[args.model](
-            encoder_name=args.encoder,
-            encoder_weights="imagenet",
-            in_channels=3,
-            classes=1,
-        )
+        # self.model = smp.__dict__[args.model](
+        #     encoder_name=args.encoder,
+        #     encoder_weights="imagenet",
+        #     in_channels=3,
+        #     classes=1,
+        # )
+        self.model = ptcv_get_model("hrnetv2_w40", pretrained=True)
         self.args = args
         self.criterion = nn.BCEWithLogitsLoss()
 
-    def foward(self, x):
+    def forward(self, x):
         x = self.model(x)
         return x
 
