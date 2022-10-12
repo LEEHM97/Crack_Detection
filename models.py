@@ -45,7 +45,7 @@ class SegmentationModel(pl.LightningModule):
             return {
                 "optimizer": optimizer,
                 "lr_scheduler": scheduler,
-                "monitor": "val/f1",
+                "monitor": "val/loss",
             }
 
         elif self.args.scheduler == "cosineanneal":
