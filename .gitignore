@@ -6,3 +6,5 @@ wandb
 __pycache__
 lightning_logs
 checkpoints
+.vscode
+outputs
