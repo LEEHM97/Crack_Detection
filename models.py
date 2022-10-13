@@ -4,6 +4,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim.lr_scheduler as lr_scheduler
+import hrnetv2
+
+from config import config
+from config import hrnet_config
+from config import update_config
+
 from adamp import AdamP
 from torchmetrics.functional import accuracy, f1_score, precision, recall
 # from torchmetrics.functional.classification import binary_jaccard_index
@@ -12,12 +18,14 @@ from torchmetrics.functional import accuracy, f1_score, precision, recall
 class SegmentationModel(pl.LightningModule):
     def __init__(self, args=None):
         super().__init__()
-        self.model = smp.__dict__[args.model](
-            encoder_name=args.encoder,
-            encoder_weights="imagenet",
-            in_channels=3,
-            classes=1,
-        )
+        # self.model = smp.__dict__[args.model](
+        #     encoder_name=args.encoder,
+        #     encoder_weights="imagenet",
+        #     in_channels=3,
+        #     classes=1,
+        # )
+        update_config(config, args)
+        self.model = hrnetv2.get_seg_model(config)        
         self.args = args
         self.criterion = nn.BCEWithLogitsLoss()
 
@@ -63,7 +71,7 @@ class SegmentationModel(pl.LightningModule):
         
         # jaccard_index_value = binary_jaccard_index(
         #     torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
-        # )        
+        # )
         loss = self.criterion(outputs, mask.unsqueeze(1).float())
         acc_value = accuracy(torch.sigmoid(outputs), mask)
         f1_value = f1_score(torch.sigmoid(outputs), mask)
@@ -130,6 +138,7 @@ class SegmentationModel(pl.LightningModule):
         # jaccard_index_value = binary_jaccard_index(
         #     torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
         # )
+
         loss = self.criterion(outputs, mask.unsqueeze(1).float())
         acc_value = accuracy(torch.sigmoid(outputs), mask)
         f1_value = f1_score(torch.sigmoid(outputs), mask)
