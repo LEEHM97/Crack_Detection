@@ -34,7 +34,7 @@ _C.CUDNN.ENABLED = True
 # common params for NETWORK
 _C.MODEL = CN()
 _C.MODEL.NAME = 'seg_hrnet'
-_C.MODEL.PRETRAINED = 'checkpoints\\unet++_b0_fold02_val\\f1=0.0000-v2.ckpt'
+_C.MODEL.PRETRAINED = ''
 _C.MODEL.ALIGN_CORNERS = True
 _C.MODEL.NUM_OUTPUTS = 1
 _C.MODEL.EXTRA = CN(new_allowed=True)
