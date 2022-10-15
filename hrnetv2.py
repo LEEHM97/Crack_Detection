@@ -333,11 +333,13 @@ class HighResolutionNet(nn.Module):
         )
         
         self.UpsampleLayer = nn.Sequential(
-            nn.Upsample(scale_factor=2, mode="bilinear",align_corners=ALIGN_CORNERS),
+            # nn.Upsample(scale_factor=2, mode="bilinear",align_corners=ALIGN_CORNERS),
+            nn.UpsamplingBilinear2d(scale_factor=2),
             nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, padding=1),
             nn.BatchNorm2d(num_features=1, momentum=BN_MOMENTUM),
             nn.ReLU(inplace=True),
-            nn.Upsample(scale_factor=2, mode="bilinear",align_corners=ALIGN_CORNERS),
+            # nn.Upsample(scale_factor=2, mode="bilinear",align_corners=ALIGN_CORNERS),
+            nn.UpsamplingBilinear2d(scale_factor=2),
             nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, padding=1),
             # nn.Sigmoid()
         )
@@ -475,10 +477,10 @@ class HighResolutionNet(nn.Module):
 
         x = self.last_layer(x)
         
-        # x = F.interpolate(input=x, size=(h, w), 
-        #               mode='bilinear', align_corners=ALIGN_CORNERS)
+        x = F.interpolate(input=x, size=(h, w), 
+                      mode='bilinear', align_corners=ALIGN_CORNERS)
     
-        x = self.UpsampleLayer(x)
+        # x = self.UpsampleLayer(x)
         
         return x
 
