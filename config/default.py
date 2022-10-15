@@ -33,7 +33,7 @@ _C.CUDNN.ENABLED = True
 
 # common params for NETWORK
 _C.MODEL = CN()
-_C.MODEL.NAME = 'seg_hrnet'
+_C.MODEL.NAME = 'hrnetv2'
 _C.MODEL.PRETRAINED = ''
 _C.MODEL.ALIGN_CORNERS = True
 _C.MODEL.NUM_OUTPUTS = 1
