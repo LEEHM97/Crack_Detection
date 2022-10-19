@@ -41,8 +41,8 @@ def get_width(skel, canny):
     pixel_pairs = []
     distance = []
     
-    white_pixels_skel= np.argwhere(skel==255)
-    white_pixels_canny= np.argwhere(canny==255)
+    white_pixels_skel= list(map(tuple, np.argwhere(skel==255)))
+    white_pixels_canny= list(map(tuple, np.argwhere(canny==255)))
     
     for skel_idx in range(len(white_pixels_skel)):
         
@@ -77,7 +77,7 @@ def get_max_width(distance):
     return max_width_idx, int(max_width*2)
 
 
-def visualize_width(output, pixel_pairs, distance, max_width_idx):
+def visualize_width(output, pixel_pairs, max_width_idx):
     output = output.astype(np.uint8)
     output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
     
@@ -87,7 +87,7 @@ def visualize_width(output, pixel_pairs, distance, max_width_idx):
         viz_image[skel_idx] = np.array([0, 0, 255])
         viz_image[canny_idx] = np.array([0, 255, 0])
         
-    viz_image[distance[max_width_idx][0]] = np.array([255, 0, 0])
-    viz_image[distance[max_width_idx][1]] = np.array([255, 0, 0])
+    viz_image[pixel_pairs[max_width_idx][0]] = np.array([255, 0, 0])
+    viz_image[pixel_pairs[max_width_idx][0]] = np.array([255, 0, 0])
     
-    cv2.imwrite('viz_width.png', viz_image)
+    cv2.imwrite('./outputs/viz_width.png', viz_image)
