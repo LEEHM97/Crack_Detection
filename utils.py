@@ -1,5 +1,6 @@
 import cv2
 import torch
+import math
 import numpy as np
 
 from transforms import make_transform
@@ -16,3 +17,13 @@ def get_output(image_dir, model, transform):
     output = np.where(output<0.5, 0, 255)
     
     return output
+
+def skeletonize(image):
+    image = image.astype(np.uint8)
+    skel = cv2.ximgproc.thinning(image)
+    return skel
+
+def canny(image):
+    image = image.astype(np.uint8)
+    canny = cv2.Canny(image, 100, 150)
+    return canny
