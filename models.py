@@ -4,30 +4,22 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim.lr_scheduler as lr_scheduler
-import hrnetv2
-
-from config import config
-from config import hrnet_config
-from config import update_config
 
 from adamp import AdamP
-from torchmetrics.functional import accuracy, f1_score, precision, recall
-# from torchmetrics.functional.classification import binary_jaccard_index
+from torchmetrics.functional import accuracy, f1_score, precision, recall, dice_score
 
 
 class SegmentationModel(pl.LightningModule):
     def __init__(self, args=None):
         super().__init__()
-        # self.model = smp.__dict__[args.model](
-        #     encoder_name=args.encoder,
-        #     encoder_weights="imagenet",
-        #     in_channels=3,
-        #     classes=1,
-        # )
-        update_config(config, args)
-        self.model = hrnetv2.get_seg_model(config)        
-        self.args = args
+        self.model = smp.__dict__[args.model](
+            encoder_name=args.encoder,
+            encoder_weights="imagenet",
+            in_channels=3,
+            classes=1,
+        )
         self.criterion = nn.BCEWithLogitsLoss()
+        self.args = args
 
     def forward(self, x):
         x = self.model(x)
@@ -65,9 +57,10 @@ class SegmentationModel(pl.LightningModule):
 
     def training_step(self, train_batch, batch_idx):
         image, mask = train_batch
+        image = image.cuda()
+        mask = mask.long().cuda()
 
-        outputs = self.model(image)
-        mask = mask.long()
+        losses, outputs = self.model(image, mask)
         
         # jaccard_index_value = binary_jaccard_index(
         #     torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
@@ -131,9 +124,8 @@ class SegmentationModel(pl.LightningModule):
 
     def validation_step(self, val_batch, batch_idx):
         image, mask = val_batch
-
+        
         outputs = self.model(image)
-        mask = mask.long()
 
         # jaccard_index_value = binary_jaccard_index(
         #     torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
@@ -193,9 +185,10 @@ class SegmentationModel(pl.LightningModule):
 
     def test_step(self, test_batch, batch_idx):
         image, mask = test_batch
+        image = image.cuda()
+        mask = mask.long().cuda()
 
-        outputs = self.model(image)
-        mask = mask.long()
+        losses, outputs = self.model(image, mask)
 
         # jaccard_index_value = binary_jaccard_index(
         #     torch.sigmoid(outputs), mask.unsqueeze(0).permute(1, 0, 2, 3)
