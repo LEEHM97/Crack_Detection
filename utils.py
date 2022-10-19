@@ -18,12 +18,76 @@ def get_output(image_dir, model, transform):
     
     return output
 
+
 def skeletonize(image):
     image = image.astype(np.uint8)
     skel = cv2.ximgproc.thinning(image)
     return skel
 
+
 def canny(image):
     image = image.astype(np.uint8)
     canny = cv2.Canny(image, 100, 150)
     return canny
+
+
+def calc_distance(a, b):
+    y_distance = (a[0] - b[0]) ** 2
+    x_distance = (a[1] - b[1]) ** 2
+    return  x_distance + y_distance
+
+
+def get_width(skel, canny):
+    pixel_pairs = []
+    distance = []
+    
+    white_pixels_skel= np.argwhere(skel==255)
+    white_pixels_canny= np.argwhere(canny==255)
+    
+    for skel_idx in range(len(white_pixels_skel)):
+        
+        min_distance = math.inf
+        temp_pixel_pairs = None
+
+        for canny_idx in range(len(white_pixels_canny)):
+            temp_distance = calc_distance(white_pixels_skel[skel_idx], white_pixels_canny[canny_idx])
+
+            if  temp_distance < min_distance:
+                temp_pixel_pairs = [white_pixels_skel[skel_idx], white_pixels_canny[canny_idx]]
+                min_distance = temp_distance
+
+        pixel_pairs.append(temp_pixel_pairs)
+        distance.append(math.sqrt(min_distance))
+    
+    return pixel_pairs, distance
+    
+        
+def get_max_width(distance):
+    max_width = -math.inf
+    cnt = 0
+    max_width_idx = 0
+    
+    for w in distance:
+        cnt += 1
+        
+        if w > max_width:
+            max_width = w
+            max_width_idx = cnt-1
+    
+    return max_width_idx, int(max_width*2)
+
+
+def visualize_width(output, pixel_pairs, distance, max_width_idx):
+    output = output.astype(np.uint8)
+    output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
+    
+    viz_image = np.zeros(output.shape, dtype=np.uint8)
+    
+    for skel_idx, canny_idx in pixel_pairs:
+        viz_image[skel_idx] = np.array([0, 0, 255])
+        viz_image[canny_idx] = np.array([0, 255, 0])
+        
+    viz_image[distance[max_width_idx][0]] = np.array([255, 0, 0])
+    viz_image[distance[max_width_idx][1]] = np.array([255, 0, 0])
+    
+    cv2.imwrite('viz_width.png', viz_image)
