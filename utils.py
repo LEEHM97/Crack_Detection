@@ -5,6 +5,12 @@ import numpy as np
 
 from transforms import make_transform
 
+CLASS_COLOR = np.array([[0, 0, 0], [192, 0, 128],[0, 128, 192],[0, 128, 64],[128, 0, 0],
+        [64, 0, 128],[64, 0, 192],[192, 128, 64],[192, 192, 128],[64, 64, 128],
+        [128, 0, 192],[255, 0, 0],[0, 255, 0],[0, 0, 255],[128, 128, 128],
+        [153, 0, 51], [102, 255, 153] , [255, 51, 153], [102, 204, 255],[0, 102, 51],
+        [255, 153, 204]], np.uint8)
+
 def get_output(image_dir, model, transform):
     image = cv2.imread(image_dir)
     
@@ -92,6 +98,7 @@ def visualize_width(output, pixel_pairs, max_width_idx):
     
     cv2.imwrite('./outputs/viz_width.png', viz_image)
     
+    
 def visualize_max_width(pixel_pairs, max_width_idx, max_width, canny):
     y1 = pixel_pairs[max_width_idx][0][0]
     x1 = pixel_pairs[max_width_idx][0][1]
@@ -110,3 +117,63 @@ def visualize_max_width(pixel_pairs, max_width_idx, max_width, canny):
     cv2.putText(img=viz_box, text=txt, org=(x2, y2), fontFace=1, fontScale=2, thickness=3, color=(255, 0, 0))
     
     cv2.imwrite('./outputs/viz_max_width.png', viz_box)
+
+
+def contour_skel(output):
+    output = output.astype(np.uint8)
+    
+    # Threshold the image
+    kernel = np.ones((3, 3), np.uint8)
+
+    output = dilation = cv2.dilate(output, kernel, iterations=20)
+    _ ,output = cv2.threshold(output, 127, 255, 0)
+
+    # Step 1: Create an empty skeleton
+    skel = np.zeros(output.shape, np.uint8)
+
+    # Get a Cross Shaped Kernel
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3,3))
+
+    # Repeat steps 2-4
+    while True:
+        #Step 2: Open the image
+        open = cv2.morphologyEx(output, cv2.MORPH_OPEN, element)
+        #Step 3: Substract open from the original image
+        temp = cv2.subtract(output, open)
+        #Step 4: Erode the original image and refine the skeleton
+        eroded = cv2.erode(output, element)
+        skel = cv2.bitwise_or(skel,temp)
+        output = eroded.copy()
+        # Step 5: If there are no white pixels left ie.. the image has been completely eroded, quit the loop
+        if cv2.countNonZero(output)==0:
+            break
+        
+    return skel
+
+def get_contour(output, skel):
+    areas = []
+    output = output.astype(np.uint8)
+    
+    _, thresh = cv2.threshold(output, 160, 255, cv2.THRESH_BINARY)
+    thresh = cv2.bitwise_or(skel, thresh)
+    
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  
+    contours = list(filter(lambda x: cv2.contourArea(x) > 100, contours))
+
+    return contours
+
+def visuzlize_contour_area(output, contours):
+    output = output.astype(np.uint8)
+    
+    viz_box = output.copy()
+    viz_box = cv2.cvtColor(viz_box, cv2.COLOR_GRAY2BGR)
+    
+    for idx in range(len(contours)):
+        x, y, w, h = cv2.boundingRect(contours[idx])
+        viz_box = cv2.rectangle(viz_box, (x,y), (x+w, y+h), CLASS_COLOR[idx+1].tolist(), 5)
+        viz_box = cv2.drawContours(viz_box, contours, idx ,CLASS_COLOR[idx+1].tolist(), 5)
+
+        txt = f"{idx}area: {cv2.contourArea(contours[idx])}"
+        cv2.putText(img=viz_box, text=txt, org=(x+10, y+40), fontFace=1, fontScale=2, thickness=4, color=(255, 255, 255))
+    
+    cv2.imwrite('./outputs/viz_contour_area.png', viz_box)
