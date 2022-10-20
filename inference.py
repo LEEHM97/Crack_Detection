@@ -66,3 +66,4 @@ if __name__ == "__main__":
     max_width_idx, max_width = utils.get_max_width(distance)
     
     utils.visualize_width(output, pixel_pairs, max_width_idx)
+    utils.visualize_max_width(pixel_pairs, max_width_idx, max_width, canny)
