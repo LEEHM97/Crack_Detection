@@ -91,3 +91,22 @@ def visualize_width(output, pixel_pairs, max_width_idx):
     viz_image[pixel_pairs[max_width_idx][0]] = np.array([255, 0, 0])
     
     cv2.imwrite('./outputs/viz_width.png', viz_image)
+    
+def visualize_max_width(pixel_pairs, max_width_idx, max_width, canny):
+    y1 = pixel_pairs[max_width_idx][0][0]
+    x1 = pixel_pairs[max_width_idx][0][1]
+    y2 = pixel_pairs[max_width_idx][1][0]
+    x2 = pixel_pairs[max_width_idx][1][1]
+    
+    x3 = (2 * x1) - x2
+    y3 = (2 * y1) - y2
+    
+    viz_box = canny.copy()
+    viz_box = cv2.cvtColor(viz_box, cv2.COLOR_GRAY2BGR)
+    
+    txt = f"width: {max_width}"
+    
+    viz_box = cv2.line(viz_box, (x2,y2), (x3, y3), (255,0,0), 3)
+    cv2.putText(img=viz_box, text=txt, org=(x2, y2), fontFace=1, fontScale=2, thickness=3, color=(255, 0, 0))
+    
+    cv2.imwrite('./outputs/viz_max_width.png', viz_box)
