@@ -45,7 +45,7 @@ parser.add_argument('opts',
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    image_dir = "./Datasets/Test/101_3e7a208a-e38a-41ad-a46c-a3a27addd5d9.jpg"
+    image_dir = "./Datasets/Test/images/20160222_115305.jpg"
     model_dir = "./checkpoints/unet++_f1=0.8276.ckpt"
     
     _, test_transform = make_transform(args)
@@ -67,3 +67,8 @@ if __name__ == "__main__":
     
     utils.visualize_width(output, pixel_pairs, max_width_idx)
     utils.visualize_max_width(pixel_pairs, max_width_idx, max_width, canny)
+    
+    contour_skel = utils.contour_skel(output)
+    contours = utils.get_contour(output, contour_skel)
+    
+    utils.visuzlize_contour_area(output, contours)
