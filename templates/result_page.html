@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show-me-the-Randmark</title>
+</head>
+<style>
+#root {
+  width: 100%;
+  margin: 0 auto;
+  max-width: 1400px;
+  margin-bottom: 100px;
+}
+.title {
+  text-align: center;
+}
+.contents {
+  display: flex;
+  flex-direction: row;
+  margin-top: 30px;
+}
+.contents .upload-box {
+  width: 100%;
+  margin-right: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.contents .upload-box .drag-file {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 3px dashed #dbdbdb;
+}
+.contents .upload-box .drag-file.highlight {
+  border: 3px dashed red;
+}
+.contents .upload-box .drag-file .image {
+  width: 40px;
+}
+.contents .upload-box .drag-file .message {
+  margin-bottom: 0;
+}
+.contents .upload-box .drag-file .preview {
+  display: none;
+  position: absolute;
+  left: 0;
+  height: 0;
+  width: 100%;
+  height: 100%;
+}
+.contents .upload-box .file-label {
+  margin-top: 30px;
+  background-color: #5b975b;
+  color: #fff;
+  text-align: center;
+  padding: 10px 0;
+  width: 65%;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.contents .upload-box .file {
+  display: none;
+}
+@media (max-width: 700px) {
+  .contents {
+    display: flex;
+    flex-direction: column;
+    margin-top: 30px;
+  }
+  .contents .upload-box {
+    width: 100%;
+    box-sizing: border-box;
+    margin-right: 0;
+  }
+  .contents .upload-box .drag-file {
+    height: 150px;
+  }
+  .contents .files {
+    width: 100%;
+    box-sizing: border-box;
+    margin-right: 0;
+    overflow: initial;
+  }
+}
+@font-face {
+    font-family: 'ghanachoco';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/ghanachoco.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+ font-size: 20px;
+}
+h1 {
+ font-family: 'ghanachoco';
+ text-align : center;
+ padding-top: 5%;
+ margin-bottom: 15px;
+ font-size: 88px;
+}
+h3 {
+ text-align : center;
+ margin: auto;
+ font-size: 28px;
+}
+input[type=submit] {
+ width: 100px;
+ height: 30px;
+ background-color: #FF6A00;
+ border: 1px solid #FFFFFF;
+ border-radius: 30px;
+ box-shadow: 5px 5px 5px #ff8080;
+ text-align: center;
+ display: inline-block;
+ position: relative;
+ top: 20px;
+ left: 42%;
+}
+
+* {
+box-sizing: border-box;
+}
+
+.column {
+float: left;
+padding: 20px;
+}
+
+.row::after {
+content: "";
+clear: both;
+display: table;
+}
+
+</style>
+
+<body>
+ <h1> Crack Detection Service </h1>
+ <h3> 균열 진단 서비스! <br>
+   이미지에 존재하는 균열을 진단하고 사이즈를 측정해줍니다 </h3>
+    <div id="root">
+ <form action="LandMark" method="post" enctype="multipart/form-data">
+ <br><hr><br></form>
+
+<div class="row" style="margin-left: 130px;">
+    <div class="column">
+        <img src={{original}} alt='original' style='width:450px;height:270px;'>
+    </div>
+
+    <div class="column" style="text-align: center;">
+        <img src="./static/arrow.png" alt='arrow' style='width:100px;height:100px;margin-top:85px;'>
+    </div>
+
+    <div class="column">
+        <img src={{output}} alt="output" style='width:450px;height:270px;'>
+    </div>
+</div>
+
+<br><br><br><br>
+
+<div class="row" style="margin-left: 85px;">
+    <div class="column">
+        <img src={{width_img}} alt="width_img" style='width:500;height:320px;'>
+    </div>
+    <div class="column">
+        <img src={{area_img}} alt="area_img" style='width:500;height:320px;'>
+    </div>
+</div>
+
+ </body>
+
+ </html>
