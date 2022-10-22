@@ -1,6 +1,7 @@
 import cv2
 import torch
 import math
+import argparse
 import numpy as np
 
 from transforms import make_transform
@@ -96,7 +97,8 @@ def visualize_width(output, pixel_pairs, max_width_idx):
     viz_image[pixel_pairs[max_width_idx][0]] = np.array([255, 0, 0])
     viz_image[pixel_pairs[max_width_idx][0]] = np.array([255, 0, 0])
     
-    cv2.imwrite('./outputs/viz_width.png', viz_image)
+    cv2.imwrite('./static/outputs/viz_width.png', viz_image)
+    return viz_image
     
     
 def visualize_max_width(pixel_pairs, max_width_idx, max_width, canny):
@@ -113,11 +115,11 @@ def visualize_max_width(pixel_pairs, max_width_idx, max_width, canny):
     
     txt = f"width: {max_width}"
     
-    viz_box = cv2.line(viz_box, (x2,y2), (x3, y3), (255,0,0), 3)
-    cv2.putText(img=viz_box, text=txt, org=(x2, y2), fontFace=1, fontScale=2, thickness=3, color=(255, 0, 0))
+    viz_box = cv2.line(viz_box, (x2,y2), (x3, y3), (255,255,255), 4)
+    cv2.putText(img=viz_box, text=txt, org=(x2, y2), fontFace=1, fontScale=4, thickness=3, color=(255, 255, 255))
     
-    cv2.imwrite('./outputs/viz_max_width.png', viz_box)
-
+    cv2.imwrite('./static/outputs/viz_max_width.png', viz_box)
+    return viz_box
 
 def contour_skel(output):
     output = output.astype(np.uint8)
@@ -158,7 +160,7 @@ def get_contour(output, skel):
     thresh = cv2.bitwise_or(skel, thresh)
     
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  
-    contours = list(filter(lambda x: cv2.contourArea(x) > 100, contours))
+    contours = list(filter(lambda x: cv2.contourArea(x) > 200, contours))
 
     return contours
 
@@ -174,6 +176,45 @@ def visuzlize_contour_area(output, contours):
         viz_box = cv2.drawContours(viz_box, contours, idx ,CLASS_COLOR[idx+1].tolist(), 5)
 
         txt = f"{idx}area: {cv2.contourArea(contours[idx])}"
-        cv2.putText(img=viz_box, text=txt, org=(x+10, y+40), fontFace=1, fontScale=2, thickness=4, color=(255, 255, 255))
+        cv2.putText(img=viz_box, text=txt, org=(x+10, y+40), fontFace=1, fontScale=4, thickness=4, color=(255, 255, 255))
     
-    cv2.imwrite('./outputs/viz_contour_area.png', viz_box)
+    cv2.imwrite('./static/outputs/viz_contour_area.png', viz_box)
+    return viz_box
+
+
+def basic_args():
+    parser = argparse.ArgumentParser()
+    
+    # model 설정
+
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--num_workers", type=int, default=4)
+    parser.add_argument("--project", type=str, default="Crack_Detection")
+    parser.add_argument("--name", type=str, default="unet++_b1")
+    parser.add_argument("--model", type=str, default="UnetPlusPlus")
+    parser.add_argument("--encoder", type=str, default="efficientnet-b1")
+    parser.add_argument("--precision", type=int, default=16)
+
+
+    # training 설정
+
+    parser.add_argument("--epochs", type=int, default=30)
+    parser.add_argument("--kfold", type=int, default=5)
+    parser.add_argument("--batch_size", type=int, default=8)
+    parser.add_argument("--learning_rate", type=float, default=0.001)
+    parser.add_argument("--optimizer", type=str, default="adam")
+    parser.add_argument("--scheduler", type=str, default="reducelr")
+    parser.add_argument("--crop_image_size", type=int, default=320)
+
+    parser.add_argument('--cfg',
+                        help='experiment configure file name',
+                        default = './config/cfg.yml',
+                        type=str)
+    parser.add_argument('opts',
+                        help="Modify config options using the command-line",
+                        default=None,
+                        nargs=argparse.REMAINDER)
+
+    args = parser.parse_args()
+    
+    return args
