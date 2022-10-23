@@ -191,8 +191,8 @@ def basic_args():
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--project", type=str, default="Crack_Detection")
     parser.add_argument("--name", type=str, default="unet++_b1")
-    parser.add_argument("--model", type=str, default="UnetPlusPlus")
-    parser.add_argument("--encoder", type=str, default="efficientnet-b1")
+    parser.add_argument("--model", type=str, default="DeepLabV3Plus")
+    parser.add_argument("--encoder", type=str, default="efficientnet-b4")
     parser.add_argument("--precision", type=int, default=16)
 
 
