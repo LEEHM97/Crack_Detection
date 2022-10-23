@@ -13,7 +13,7 @@ from models import SegmentationModel
 from transforms import make_transform
 import utils
 
-model_dir = "./checkpoints/unet++_f1=0.8276.ckpt"
+model_dir = "./checkpoints/deeplabv3+_b4.ckpt"
 args = utils.basic_args()
 _, test_transform = make_transform(args)
 
