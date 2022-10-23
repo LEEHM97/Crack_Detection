@@ -18,8 +18,8 @@ parser.add_argument("--seed", type=int, default=42)
 parser.add_argument("--num_workers", type=int, default=4)
 parser.add_argument("--project", type=str, default="Crack_Detection")
 parser.add_argument("--name", type=str, default="unet++_b1")
-parser.add_argument("--model", type=str, default="UnetPlusPlus")
-parser.add_argument("--encoder", type=str, default="efficientnet-b1")
+parser.add_argument("--model", type=str, default="DeepLabV3Plus")
+parser.add_argument("--encoder", type=str, default="efficientnet-b4")
 parser.add_argument("--precision", type=int, default=16)
 
 
@@ -46,7 +46,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     image_dir = "./Datasets/Test/images/20160222_115305.jpg"
-    model_dir = "./checkpoints/unet++_f1=0.8276.ckpt"
+    model_dir = "./checkpoints/deeplabv3+_b4.ckpt"
     
     _, test_transform = make_transform(args)
     model = SegmentationModel.load_from_checkpoint(model_dir, args=args)
@@ -54,13 +54,13 @@ if __name__ == "__main__":
 
     output = utils.get_output(image_dir, model, test_transform)
     
-    cv2.imwrite('./outputs/predicted_mask.png', output)
+    cv2.imwrite('./static/outputs/predicted_mask.png', output)
     
     skel = utils.skeletonize(output)
     canny = utils.canny(output)
     
-    cv2.imwrite('./outputs/skel.png', skel)
-    cv2.imwrite('./outputs/canny.png', canny)
+    cv2.imwrite('./static/outputs/skel.png', skel)
+    cv2.imwrite('./static/outputs/canny.png', canny)
     
     pixel_pairs, distance = utils.get_width(skel, canny)
     max_width_idx, max_width = utils.get_max_width(distance)
