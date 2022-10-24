@@ -160,7 +160,7 @@ def get_contour(output, skel):
     thresh = cv2.bitwise_or(skel, thresh)
     
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  
-    contours = list(filter(lambda x: cv2.contourArea(x) > 200, contours))
+    contours = list(filter(lambda x: cv2.contourArea(x) > 550, contours))
 
     return contours
 
