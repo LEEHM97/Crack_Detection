@@ -1,4 +1,4 @@
-# Crack Detection Service
+# 기업연계프로젝트(스마트인사이드AI): Crack Detection Service
 
 
 ## 1. 팀원 소개
@@ -61,3 +61,27 @@ https://user-images.githubusercontent.com/67961082/197527668-db47fc43-8116-4fed-
 https://user-images.githubusercontent.com/67961082/197527698-73ea2fdc-5e2d-4324-97ee-4e09740d61de.mp4
 
 
+## 7. 어려운 점
+
+#### 7-1. Target이 작은 이미지에서의 Segmantic Segmentation
+- target이 작아 segmentation model이 과적합될 가능성이 크다.
+- 실제 현장의 이미지에서는 페인트의 벗겨짐 등 균열과 비슷한 부분이 존재하는데, 모델이 이런 부분까지 crack으로 분류하는 문제 발생
+
+
+#### 7-2. 데이터셋 문제
+- 이미지의 정확한 축척을 알지 못하기 때문에 실제 사이즈(cm, mm)로 측정하지 못하고 픽셀로만 나타내줘야 하는 한계가 있다.
+- 기업으로부터 드론이 촬영한 이미지를 제공받지 못해 양질의 데이터셋을 구축하는데 어려움이 있다.
+
+
+## 8. 개선할 점
+
+#### 8-1. 모델 서빙
+- 현재는 flask로 model serve구현
+- torch serve를 이용해 더 최적화된 서비스 제공이 가능할 것 같다.
+
+#### 8-2. Inference속도 개선
+- skeletonize와 canny edge detection으로 균열의 폭을 구할 때 이중 for문의 사용으로 시간이 많이 소요된다.
+
+#### 8-3. Object detection model사용
+- 페인트 벗겨짐 등 균열과 유사하게 보이는 부분을 segmentation 모델만으로는 정확하게 분류하기 어렵다.
+- Object detection model을 추가로 생성하여 two step으로 균열을 진단하면 보다 정교한 균열진단이 가능할 것 같다.
